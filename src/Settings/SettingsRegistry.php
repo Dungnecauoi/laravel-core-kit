@@ -46,6 +46,11 @@ class SettingsRegistry
         return Collection::make($this->panels)
             ->sortBy('order')
             ->values()
+            ->map(function (array $panel) {
+                $panel['label'] = __($panel['label']);
+
+                return $panel;
+            })
             ->all();
     }
 }

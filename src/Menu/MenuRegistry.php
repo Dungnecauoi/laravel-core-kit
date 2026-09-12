@@ -81,13 +81,27 @@ class MenuRegistry
     /** @return list<array> */
     public function items(): array
     {
-        return $this->runThroughFilters(array_values($this->items));
+        return $this->runThroughFilters(array_map($this->translate(...), array_values($this->items)));
     }
 
     /** @return list<array> */
     public function childrenFor(string $parentKey): array
     {
-        return $this->runThroughFilters(array_values($this->children[$parentKey] ?? []));
+        return $this->runThroughFilters(array_map($this->translate(...), array_values($this->children[$parentKey] ?? [])));
+    }
+
+    /**
+     * Translated here, once, so every kit (Blade, React, ...) gets a
+     * translated label automatically — a kit that forgets to call __()
+     * itself would otherwise silently ship untranslated strings.
+     */
+    private function translate(array $item): array
+    {
+        if (isset($item['label'])) {
+            $item['label'] = __($item['label']);
+        }
+
+        return $item;
     }
 
     /**

@@ -1,6 +1,6 @@
 {
     "name": "duxbo/laravel-core",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "description": "Framework-agnostic core for the duxbo starter-kit line: menu and settings registries with typed events and pipeline filters, plus the AI capability every kit inherits via duxbo/laravel-ai-core. UI kits (Blade, Vue, React) are a presentation layer on top of this — this package owns the stateful, extensible logic they all render.",
     "type": "library",
     "license": "MIT",
@@ -24,6 +24,7 @@
         "illuminate/filesystem": "^11.0|^12.0|^13.0",
         "illuminate/pipeline": "^11.0|^12.0|^13.0",
         "illuminate/process": "^11.0|^12.0|^13.0",
+        "illuminate/routing": "^11.0|^12.0|^13.0",
         "illuminate/support": "^11.0|^12.0|^13.0",
         "laravel/prompts": "^0.1.24|^0.2|^0.3"
     },
@@ -49,7 +50,7 @@
             ]
         },
         "branch-alias": {
-            "dev-main": "0.2.x-dev"
+            "dev-main": "0.3.x-dev"
         }
     },
     "config": {

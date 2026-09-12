@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-09-12
+
+- `MenuRegistry::items()`/`childrenFor()` and `SettingsRegistry::all()` now translate `label` through `__()` before returning it — one place, so every kit gets translated labels automatically instead of each needing to remember to call `__()` itself.
+- New `admin.auth` middleware alias, registered as a pass-through (`LaravelCore\Http\Middleware\AllowAll`) unless something else has already claimed it. Every kit's admin routes carry `->middleware('admin.auth')`; a real auth package overrides the same alias to turn on login enforcement, without either side depending on the other. Registration is order-independent by design — verified end-to-end with `duxbo/laravel-blade-kit` + `duxbo/laravel-auth` in a clean scratch app (302 → `/login` once auth is installed; pass-through before that).
+
 ## 0.2.2 — 2026-09-12
 
 - `starter-kit:install`: add `react` to the frontend choice (`duxbo/laravel-react-kit`). Kits can now declare `needs_ui_library`/`needs_mode` in `self::KITS` to turn on the extra prompts (UI library, rendering mode) and have them passed as `--ui=`/`--mode=` to the kit's own install command — Blade still skips both since it declares neither flag.
