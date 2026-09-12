@@ -29,7 +29,7 @@ php artisan starter-kit:install
 Asks two things:
 
 1. **Frontend kit** — currently only Blade (`duxbo/laravel-blade-kit`). A future Vue/React entry in `StarterKitInstallCommand::KITS` would additionally ask for a UI library and Inertia-vs-API; Blade doesn't have that choice, so neither question appears.
-2. **Optional feature packages** (multi-select) — `duxbo/laravel-auth`, `duxbo/laravel-seo`. `duxbo/laravel-ai-core` is never offered here: it's already a dependency of this package, so it's installed the moment `duxbo/laravel-core` is.
+2. **Optional feature packages** (multi-select) — `duxbo/laravel-auth`, `duxbo/laravel-seo`, `duxbo/laravel-media`. `duxbo/laravel-ai-core` is never offered here: it's already a dependency of this package, so it's installed the moment `duxbo/laravel-core` is.
 
 For each answer it adds the matching `vcs` repository to the host app's `composer.json` if missing, runs `composer require` for it, and — for the chosen kit only — runs that kit's own `{kit}:install` command as a fresh process (so it sees the package composer just required). The resulting stack is written to `config/starter-kit.php`:
 

@@ -19,19 +19,25 @@ class StarterKitInstallCommandTest extends TestCase
             ->expectsChoice(
                 'Cài thêm package nào? (bỏ trống nếu không cần)',
                 ['seo'],
-                ['auth' => 'Xác thực & phân quyền (duxbo/laravel-auth)', 'seo' => 'SEO (duxbo/laravel-seo)'],
+                [
+                    'auth' => 'Xác thực & phân quyền (duxbo/laravel-auth)',
+                    'seo' => 'SEO (duxbo/laravel-seo)',
+                    'media' => 'Media (duxbo/laravel-media)',
+                ],
             )
             ->assertSuccessful();
 
         Process::assertRan(fn ($process) => str_contains($process->command[2] ?? '', 'duxbo/laravel-blade-kit'));
         Process::assertRan(fn ($process) => str_contains($process->command[2] ?? '', 'duxbo/laravel-seo'));
         Process::assertRan(fn ($process) => ($process->command[2] ?? null) === 'blade-kit:install');
+        Process::assertNotRan(fn ($process) => str_contains($process->command[2] ?? '', 'duxbo/laravel-media'));
 
         $composer = json_decode(file_get_contents($composerJsonPath), true);
         $urls = array_column($composer['repositories'], 'url');
         $this->assertContains('https://github.com/Dungnecauoi/laravel-blade-kit.git', $urls);
         $this->assertContains('https://github.com/Dungnecauoi/laravel-seo.git', $urls);
         $this->assertNotContains('https://github.com/Dungnecauoi/laravel-auth.git', $urls);
+        $this->assertNotContains('https://github.com/Dungnecauoi/laravel-media.git', $urls);
 
         $descriptor = require config_path('starter-kit.php');
         $this->assertSame('blade', $descriptor['frontend']);

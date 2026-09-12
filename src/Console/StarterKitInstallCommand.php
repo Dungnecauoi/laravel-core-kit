@@ -61,6 +61,12 @@ class StarterKitInstallCommand extends Command
             'repository' => 'https://github.com/Dungnecauoi/laravel-seo.git',
             'constraint' => '^0.11',
         ],
+        'media' => [
+            'label' => 'Media (duxbo/laravel-media)',
+            'package' => 'duxbo/laravel-media',
+            'repository' => 'https://github.com/Dungnecauoi/laravel-media.git',
+            'constraint' => 'dev-main@dev',
+        ],
     ];
 
     public function handle(Filesystem $files): int
