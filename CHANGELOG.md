@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0 — 2026-09-12
+
 - `starter-kit:install` — interactive installer: picks a frontend kit (currently Blade), optional feature packages (`laravel-auth`, `laravel-seo`, `laravel-media`), wires host `composer.json` repositories, runs `composer require`, delegates to the kit's own install command, and records the choice in `config/starter-kit.php`.
 
 ## 0.1.0 — 2026-09-12
