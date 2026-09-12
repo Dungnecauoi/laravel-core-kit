@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `starter-kit:install` — interactive installer: picks a frontend kit (currently Blade), optional feature packages (`laravel-auth`, `laravel-seo`), wires host `composer.json` repositories, runs `composer require`, delegates to the kit's own install command, and records the choice in `config/starter-kit.php`.
+
 ## 0.1.0 — 2026-09-12
 
 - `MenuRegistry` and `SettingsRegistry` — extension-point registries for sidebar items and settings tabs, keyed for safe re-registration (a repeated `key` replaces instead of duplicating).

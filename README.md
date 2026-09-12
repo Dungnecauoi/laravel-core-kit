@@ -12,12 +12,39 @@ AI itself is not implemented here — it's a real `require` on [`duxbo/laravel-a
 - **`SettingsRegistry`** — lets the host app or any package register a tab/panel on the settings page.
 - **Events** — `MenuItemRegistered`, `SettingsPanelRegistered` fire whenever something is registered, so a package can react without polling the registries.
 - **Pipeline filters** — `MenuRegistry::filter()` lets a package transform the resolved menu (e.g. hide an item by permission) without wrapping or replacing anything.
+- **`starter-kit:install`** — the one command a new project runs: pick a frontend kit and optional feature packages, and it wires `composer.json`, runs `composer require`, delegates to the kit's own install command, and records the choice.
 
 ## Installation
 
 ```bash
 composer require duxbo/laravel-core
 ```
+
+## `starter-kit:install`
+
+```bash
+php artisan starter-kit:install
+```
+
+Asks two things:
+
+1. **Frontend kit** — currently only Blade (`duxbo/laravel-blade-kit`). A future Vue/React entry in `StarterKitInstallCommand::KITS` would additionally ask for a UI library and Inertia-vs-API; Blade doesn't have that choice, so neither question appears.
+2. **Optional feature packages** (multi-select) — `duxbo/laravel-auth`, `duxbo/laravel-seo`. `duxbo/laravel-ai-core` is never offered here: it's already a dependency of this package, so it's installed the moment `duxbo/laravel-core` is.
+
+For each answer it adds the matching `vcs` repository to the host app's `composer.json` if missing, runs `composer require` for it, and — for the chosen kit only — runs that kit's own `{kit}:install` command as a fresh process (so it sees the package composer just required). The resulting stack is written to `config/starter-kit.php`:
+
+```php
+return [
+    'frontend' => 'blade',
+    'ui_library' => null,
+    'mode' => null,
+    'features' => ['seo'],
+];
+```
+
+Re-running the command once `config/starter-kit.php` exists refuses by default — pass `--force` to redo it.
+
+This command only orchestrates `composer require` + delegation; it never contains a kit's own install logic (copying view stubs, publishing config, and so on), which stays entirely inside that kit's package.
 
 The service provider is auto-discovered.
 
