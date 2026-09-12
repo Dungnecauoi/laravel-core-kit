@@ -34,6 +34,8 @@ class StarterKitInstallCommandTest extends TestCase
 
         $composer = json_decode(file_get_contents($composerJsonPath), true);
         $urls = array_column($composer['repositories'], 'url');
+        $this->assertContains('https://github.com/Dungnecauoi/laravel-core-kit.git', $urls);
+        $this->assertContains('https://github.com/Dungnecauoi/laravel-ai-core.git', $urls);
         $this->assertContains('https://github.com/Dungnecauoi/laravel-blade-kit.git', $urls);
         $this->assertContains('https://github.com/Dungnecauoi/laravel-seo.git', $urls);
         $this->assertNotContains('https://github.com/Dungnecauoi/laravel-auth.git', $urls);

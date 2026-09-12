@@ -33,6 +33,26 @@ class StarterKitInstallCommand extends Command
     protected $description = 'Interactively pick a frontend kit and optional feature packages, then install them';
 
     /**
+     * None of these packages are on Packagist yet, so composer can't find
+     * them from a package name alone — each needs its `vcs` repository
+     * declared directly in the *root* application's composer.json.
+     * Repositories declared inside a dependency's own composer.json (e.g.
+     * laravel-blade-kit declaring laravel-core's, or laravel-core
+     * declaring laravel-ai-core's) are **not** inherited by the app that
+     * requires it — composer only ever reads the root project's
+     * `repositories`. Every kit requires duxbo/laravel-core, which in turn
+     * requires duxbo/laravel-ai-core, so both are added unconditionally
+     * before requiring any kit — confirmed by requiring blade-kit into a
+     * clean scratch app: it fails to resolve without this.
+     *
+     * @var list<string>
+     */
+    private const CORE_REPOSITORIES = [
+        'https://github.com/Dungnecauoi/laravel-core-kit.git',
+        'https://github.com/Dungnecauoi/laravel-ai-core.git',
+    ];
+
+    /**
      * @var array<string, array{label: string, package: string, repository: string, constraint: string, install_command: string}>
      */
     private const KITS = [
@@ -96,6 +116,10 @@ class StarterKitInstallCommand extends Command
             label: 'Cài thêm package nào? (bỏ trống nếu không cần)',
             options: array_map(fn (array $feature) => $feature['label'], self::FEATURES),
         );
+
+        foreach (self::CORE_REPOSITORIES as $repository) {
+            $this->addRepository($files, $repository);
+        }
 
         $this->addRepository($files, $kit['repository']);
         $this->requirePackage($kit['package'], $kit['constraint']);
