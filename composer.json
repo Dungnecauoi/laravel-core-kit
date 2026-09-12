@@ -1,0 +1,60 @@
+{
+    "name": "duxbo/laravel-core",
+    "version": "0.1.0",
+    "description": "Framework-agnostic core for the duxbo starter-kit line: menu and settings registries with typed events and pipeline filters, plus the AI capability every kit inherits via duxbo/laravel-ai-core. UI kits (Blade, Vue, React) are a presentation layer on top of this — this package owns the stateful, extensible logic they all render.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "starter-kit", "admin", "menu", "settings", "ai", "octane"],
+    "authors": [
+        {
+            "name": "duxbo",
+            "email": "dungduc10a8@gmail.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Dungnecauoi/laravel-ai-core.git"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/pipeline": "^11.0|^12.0|^13.0",
+        "duxbo/laravel-ai-core": "^0.1.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^10.5|^11.0",
+        "laravel/pint": "^1.32"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaravelCore\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaravelCore\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LaravelCore\\CoreServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "phpunit"
+    }
+}
