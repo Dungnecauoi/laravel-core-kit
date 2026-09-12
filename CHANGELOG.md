@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.2.2 — 2026-09-12
+
+- `starter-kit:install`: add `react` to the frontend choice (`duxbo/laravel-react-kit`). Kits can now declare `needs_ui_library`/`needs_mode` in `self::KITS` to turn on the extra prompts (UI library, rendering mode) and have them passed as `--ui=`/`--mode=` to the kit's own install command — Blade still skips both since it declares neither flag.
+
 ## 0.2.1 — 2026-09-12
 
 - Fix `starter-kit:install`: also add the `duxbo/laravel-core` and `duxbo/laravel-ai-core` `vcs` repositories before requiring a kit. Repositories declared inside a dependency's own `composer.json` are not inherited by the app requiring it — composer only reads the root project's `repositories` — so without this, `composer require duxbo/laravel-blade-kit` failed to resolve in a clean app. Found by actually requiring blade-kit into a scratch app end-to-end, not just by reading the code.
