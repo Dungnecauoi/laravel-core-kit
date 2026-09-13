@@ -92,7 +92,11 @@ class StarterKitInstallCommand extends Command
     ];
 
     /**
-     * @var array<string, array{label: string, package: string, repository: string, constraint: string}>
+     * `repository` is null for packages already on Packagist — composer
+     * finds those from the name alone, nothing to add to the root
+     * composer.json for them.
+     *
+     * @var array<string, array{label: string, package: string, repository: ?string, constraint: string}>
      */
     private const FEATURES = [
         'auth' => [
@@ -112,6 +116,22 @@ class StarterKitInstallCommand extends Command
             'package' => 'duxbo/laravel-media',
             'repository' => 'https://github.com/Dungnecauoi/laravel-media.git',
             'constraint' => 'dev-main@dev',
+        ],
+    ];
+
+    /**
+     * Backup isn't a pick-or-skip feature like auth/seo/media — every
+     * project gets it, so it's installed unconditionally in handle()
+     * rather than offered in the multiselect.
+     *
+     * @var array<string, array{label: string, package: string, repository: ?string, constraint: string}>
+     */
+    private const REQUIRED_FEATURES = [
+        'backup' => [
+            'label' => 'Sao lưu (spatie/laravel-backup)',
+            'package' => 'spatie/laravel-backup',
+            'repository' => null,
+            'constraint' => '^10.0',
         ],
     ];
 
@@ -162,11 +182,25 @@ class StarterKitInstallCommand extends Command
 
         foreach ($featureKeys as $key) {
             $feature = self::FEATURES[$key];
-            $this->addRepository($files, $feature['repository']);
+
+            if ($feature['repository'] !== null) {
+                $this->addRepository($files, $feature['repository']);
+            }
+
             $this->requirePackage($feature['package'], $feature['constraint']);
         }
 
-        $this->writeDescriptor($files, $descriptorPath, $frontendKey, $uiLibrary, $mode, $featureKeys);
+        foreach (self::REQUIRED_FEATURES as $feature) {
+            if ($feature['repository'] !== null) {
+                $this->addRepository($files, $feature['repository']);
+            }
+
+            $this->requirePackage($feature['package'], $feature['constraint']);
+        }
+
+        $allFeatures = [...$featureKeys, ...array_keys(self::REQUIRED_FEATURES)];
+
+        $this->writeDescriptor($files, $descriptorPath, $frontendKey, $uiLibrary, $mode, $allFeatures);
 
         $this->components->info('Xong. Xem config/starter-kit.php để biết stack đã chọn — mỗi kit tự in ra các bước thủ công còn lại (npm install, v.v.) ở trên.');
 

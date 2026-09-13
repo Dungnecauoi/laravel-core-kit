@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.4.0 — 2026-09-13
+
+- `starter-kit:install`: every project now gets `spatie/laravel-backup` unconditionally (no repository entry needed — it's on Packagist), installed after the chosen kit and any optional features. Unlike `auth`/`seo`/`media`, it's no longer offered in the feature multiselect since it isn't optional; it still shows up in `config/starter-kit.php`'s `features` list so downstream code can check for it the same way. Verified end-to-end in a scratch app: run backup, list it in the admin UI, download it, delete it.
+
 ## 0.3.0 — 2026-09-12
 
 - `MenuRegistry::items()`/`childrenFor()` and `SettingsRegistry::all()` now translate `label` through `__()` before returning it — one place, so every kit gets translated labels automatically instead of each needing to remember to call `__()` itself.

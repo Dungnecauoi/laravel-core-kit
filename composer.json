@@ -1,6 +1,6 @@
 {
     "name": "duxbo/laravel-core",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "Framework-agnostic core for the duxbo starter-kit line: menu and settings registries with typed events and pipeline filters, plus the AI capability every kit inherits via duxbo/laravel-ai-core. UI kits (Blade, Vue, React) are a presentation layer on top of this — this package owns the stateful, extensible logic they all render.",
     "type": "library",
     "license": "MIT",
@@ -50,7 +50,7 @@
             ]
         },
         "branch-alias": {
-            "dev-main": "0.3.x-dev"
+            "dev-main": "0.4.x-dev"
         }
     },
     "config": {

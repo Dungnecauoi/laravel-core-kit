@@ -32,6 +32,7 @@ class StarterKitInstallCommandTest extends TestCase
 
         Process::assertRan(fn ($process) => str_contains($process->command[2] ?? '', 'duxbo/laravel-blade-kit'));
         Process::assertRan(fn ($process) => str_contains($process->command[2] ?? '', 'duxbo/laravel-seo'));
+        Process::assertRan(fn ($process) => str_contains($process->command[2] ?? '', 'spatie/laravel-backup'));
         Process::assertRan(fn ($process) => ($process->command[2] ?? null) === 'blade-kit:install');
         Process::assertNotRan(fn ($process) => str_contains($process->command[2] ?? '', 'duxbo/laravel-media'));
 
@@ -48,7 +49,7 @@ class StarterKitInstallCommandTest extends TestCase
         $this->assertSame('blade', $descriptor['frontend']);
         $this->assertNull($descriptor['ui_library']);
         $this->assertNull($descriptor['mode']);
-        $this->assertSame(['seo'], $descriptor['features']);
+        $this->assertSame(['seo', 'backup'], $descriptor['features']);
     }
 
     public function test_it_refuses_to_run_again_without_force(): void
@@ -102,5 +103,43 @@ class StarterKitInstallCommandTest extends TestCase
         $this->assertSame('react', $descriptor['frontend']);
         $this->assertSame('antd', $descriptor['ui_library']);
         $this->assertSame('inertia', $descriptor['mode']);
+    }
+
+    public function test_backup_is_always_installed_without_being_offered_as_a_choice(): void
+    {
+        Process::fake();
+
+        @unlink(config_path('starter-kit.php'));
+        $composerJsonPath = base_path('composer.json');
+        file_put_contents($composerJsonPath, json_encode(['name' => 'acme/app'], JSON_PRETTY_PRINT));
+
+        $this->artisan('starter-kit:install')
+            ->expectsChoice('Chọn frontend', 'blade', [
+                'blade' => 'Blade (duxbo/laravel-blade-kit)',
+                'react' => 'React (duxbo/laravel-react-kit)',
+            ])
+            ->expectsChoice(
+                'Cài thêm package nào? (bỏ trống nếu không cần)',
+                [],
+                [
+                    'auth' => 'Xác thực & phân quyền (duxbo/laravel-auth)',
+                    'seo' => 'SEO (duxbo/laravel-seo)',
+                    'media' => 'Media (duxbo/laravel-media)',
+                ],
+            )
+            ->assertSuccessful();
+
+        Process::assertRan(fn ($process) => str_contains($process->command[2] ?? '', 'spatie/laravel-backup'));
+
+        // spatie/laravel-backup is on Packagist -- no vcs repository should
+        // ever be added for it, unlike every duxbo/* feature. Only the two
+        // CORE_REPOSITORIES plus blade-kit's own get added for this run.
+        $composer = json_decode(file_get_contents($composerJsonPath), true);
+        $urls = array_column($composer['repositories'] ?? [], 'url');
+        $this->assertNotContains(null, $urls);
+        $this->assertCount(3, $urls);
+
+        $descriptor = require config_path('starter-kit.php');
+        $this->assertSame(['backup'], $descriptor['features']);
     }
 }
