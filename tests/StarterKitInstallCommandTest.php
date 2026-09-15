@@ -48,7 +48,7 @@ class StarterKitInstallCommandTest extends TestCase
         $descriptor = require config_path('starter-kit.php');
         $this->assertSame('blade', $descriptor['frontend']);
         $this->assertNull($descriptor['ui_library']);
-        $this->assertNull($descriptor['mode']);
+        $this->assertArrayNotHasKey('mode', $descriptor);
         $this->assertSame(['seo', 'backup'], $descriptor['features']);
     }
 
@@ -59,7 +59,7 @@ class StarterKitInstallCommandTest extends TestCase
         $this->artisan('starter-kit:install')->assertFailed();
     }
 
-    public function test_choosing_react_also_asks_ui_library_and_mode_and_passes_them_to_the_kit(): void
+    public function test_choosing_react_also_asks_ui_library_and_passes_it_to_the_kit(): void
     {
         Process::fake();
 
@@ -74,11 +74,7 @@ class StarterKitInstallCommandTest extends TestCase
             ])
             ->expectsChoice('Chọn UI library', 'antd', [
                 'antd' => 'Ant Design (antd)',
-                'shadcn' => 'shadcn (chưa hỗ trợ ở react-kit)',
-            ])
-            ->expectsChoice('Chọn chế độ render', 'inertia', [
-                'inertia' => 'Inertia',
-                'api' => 'API (SPA tự fetch JSON)',
+                'shadcn' => 'shadcn',
             ])
             ->expectsChoice('Cài thêm package nào? (bỏ trống nếu không cần)', [], [
                 'auth' => 'Xác thực & phân quyền (duxbo/laravel-auth)',
@@ -93,7 +89,7 @@ class StarterKitInstallCommandTest extends TestCase
         Process::assertRan(function ($process) {
             return ($process->command[2] ?? null) === 'react-kit:install'
                 && in_array('--ui=antd', $process->command, true)
-                && in_array('--mode=inertia', $process->command, true);
+                && ! in_array(true, array_map(fn ($arg) => str_starts_with((string) $arg, '--mode='), $process->command), true);
         });
 
         $composer = json_decode(file_get_contents($composerJsonPath), true);
@@ -102,7 +98,7 @@ class StarterKitInstallCommandTest extends TestCase
         $descriptor = require config_path('starter-kit.php');
         $this->assertSame('react', $descriptor['frontend']);
         $this->assertSame('antd', $descriptor['ui_library']);
-        $this->assertSame('inertia', $descriptor['mode']);
+        $this->assertArrayNotHasKey('mode', $descriptor);
     }
 
     public function test_backup_is_always_installed_without_being_offered_as_a_choice(): void

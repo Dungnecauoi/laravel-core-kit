@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.6.0 — 2026-09-15
+
+- `starter-kit:install` no longer asks a rendering-mode question ("Inertia" vs "API") for React — API mode is dropped ecosystem-wide, every React screen is an Inertia page now. `StarterKitInstallCommand::MODES`/`needs_mode` removed; the `mode` key is no longer written to `config/starter-kit.php`'s descriptor. Companion change in `duxbo/laravel-react-kit` (`react-kit:install` no longer accepts `--mode`).
+
 ## 0.5.0 — 2026-09-15
 
 - `MenuRegistry` now sorts `items()`/`childrenFor()` by an `order` key (default 100), the same convention `SettingsRegistry` already had. Without this, sidebar position depended on which package's service provider happened to boot first (composer's discovery order) — the same class of bug the `admin.auth` alias guard exists to prevent. Not a breaking change: items without an explicit `order` all default to 100 and keep their registration order relative to each other (PHP's sort has been stable since 8.0).

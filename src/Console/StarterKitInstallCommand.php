@@ -18,11 +18,11 @@ use function Laravel\Prompts\select;
  *     sees packages composer just required);
  *   - it never wires AI (duxbo/laravel-ai-core is already a dependency of
  *     this same package, so it's always present — nothing to ask here);
- *   - it never asks about UI library or Inertia/API when the chosen kit
- *     doesn't have that choice — Blade doesn't (needs_ui_library/needs_mode
- *     absent), React does (both true) — self::KITS is where that's declared
- *     per kit, and the two flags are the only thing that turns the extra
- *     prompts on.
+ *   - it never asks about UI library when the chosen kit doesn't have that
+ *     choice — Blade doesn't (needs_ui_library absent), React does (true) —
+ *     self::KITS is where that's declared per kit. Rendering mode isn't
+ *     asked at all: every kit that renders anything beyond Blade does it
+ *     through Inertia, there's no API-mode choice to make.
  *
  * The chosen stack is written to config/starter-kit.php so a feature
  * package installed later (`composer require duxbo/laravel-media`) can
@@ -55,10 +55,10 @@ class StarterKitInstallCommand extends Command
     ];
 
     /**
-     * `needs_ui_library`/`needs_mode` control whether the extra prompts run
-     * at all — Blade has neither choice, so both stay null for it.
+     * `needs_ui_library` controls whether the extra prompt runs at all —
+     * Blade doesn't have this choice, so it stays absent for it.
      *
-     * @var array<string, array{label: string, package: string, repository: string, constraint: string, install_command: string, needs_ui_library?: bool, needs_mode?: bool}>
+     * @var array<string, array{label: string, package: string, repository: string, constraint: string, install_command: string, needs_ui_library?: bool}>
      */
     private const KITS = [
         'blade' => [
@@ -75,20 +75,13 @@ class StarterKitInstallCommand extends Command
             'constraint' => 'dev-main@dev',
             'install_command' => 'react-kit:install',
             'needs_ui_library' => true,
-            'needs_mode' => true,
         ],
     ];
 
     /** @var array<string, string> */
     private const UI_LIBRARIES = [
         'antd' => 'Ant Design (antd)',
-        'shadcn' => 'shadcn (chưa hỗ trợ ở react-kit)',
-    ];
-
-    /** @var array<string, string> */
-    private const MODES = [
-        'inertia' => 'Inertia',
-        'api' => 'API (SPA tự fetch JSON)',
+        'shadcn' => 'shadcn',
     ];
 
     /**
@@ -157,10 +150,6 @@ class StarterKitInstallCommand extends Command
             ? select(label: 'Chọn UI library', options: self::UI_LIBRARIES, default: 'antd')
             : null;
 
-        $mode = ($kit['needs_mode'] ?? false)
-            ? select(label: 'Chọn chế độ render', options: self::MODES, default: 'inertia')
-            : null;
-
         $featureKeys = multiselect(
             label: 'Cài thêm package nào? (bỏ trống nếu không cần)',
             options: array_map(fn (array $feature) => $feature['label'], self::FEATURES),
@@ -175,7 +164,6 @@ class StarterKitInstallCommand extends Command
 
         $installArgs = array_filter([
             $uiLibrary !== null ? "--ui={$uiLibrary}" : null,
-            $mode !== null ? "--mode={$mode}" : null,
         ]);
 
         $this->runArtisan($kit['install_command'], $installArgs);
@@ -200,7 +188,7 @@ class StarterKitInstallCommand extends Command
 
         $allFeatures = [...$featureKeys, ...array_keys(self::REQUIRED_FEATURES)];
 
-        $this->writeDescriptor($files, $descriptorPath, $frontendKey, $uiLibrary, $mode, $allFeatures);
+        $this->writeDescriptor($files, $descriptorPath, $frontendKey, $uiLibrary, $allFeatures);
 
         $this->components->info('Xong. Xem config/starter-kit.php để biết stack đã chọn — mỗi kit tự in ra các bước thủ công còn lại (npm install, v.v.) ở trên.');
 
@@ -248,12 +236,11 @@ class StarterKitInstallCommand extends Command
     }
 
     /** @param  list<string>  $features */
-    private function writeDescriptor(Filesystem $files, string $path, string $frontend, ?string $uiLibrary, ?string $mode, array $features): void
+    private function writeDescriptor(Filesystem $files, string $path, string $frontend, ?string $uiLibrary, array $features): void
     {
         $export = var_export([
             'frontend' => $frontend,
             'ui_library' => $uiLibrary,
-            'mode' => $mode,
             'features' => array_values($features),
         ], true);
 
