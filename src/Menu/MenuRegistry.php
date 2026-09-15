@@ -4,6 +4,7 @@ namespace LaravelCore\Menu;
 
 use Closure;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Collection;
 use LaravelCore\Events\MenuItemRegistered;
 use LaravelCore\Menu\Contracts\MenuFilter;
 
@@ -22,6 +23,12 @@ use LaravelCore\Menu\Contracts\MenuFilter;
  * Pass a $parentKey to nest under an existing item instead:
  *
  *   app(MenuRegistry::class)->register($item, parentKey: 'management');
+ *
+ * Items are sorted by an 'order' key (default 100, same convention as
+ * SettingsRegistry) before being returned — without this, position in the
+ * sidebar would depend on which package's service provider happened to
+ * boot first (composer's discovery order), the exact class of bug that
+ * motivated the 'admin.auth' alias's own boot-order guard.
  *
  * Register a filter to transform the resolved list before a kit renders it
  * (e.g. hide items the current user can't access):
@@ -58,6 +65,7 @@ class MenuRegistry
     public function register(array $item, ?string $parentKey = null): static
     {
         $key = $item['key'] ?? '__auto_'.$this->sequence++;
+        $item = array_merge(['order' => 100], $item);
 
         if ($parentKey === null) {
             $this->items[$key] = $item;
@@ -81,13 +89,26 @@ class MenuRegistry
     /** @return list<array> */
     public function items(): array
     {
-        return $this->runThroughFilters(array_map($this->translate(...), array_values($this->items)));
+        return $this->runThroughFilters($this->sortAndTranslate($this->items));
     }
 
     /** @return list<array> */
     public function childrenFor(string $parentKey): array
     {
-        return $this->runThroughFilters(array_map($this->translate(...), array_values($this->children[$parentKey] ?? [])));
+        return $this->runThroughFilters($this->sortAndTranslate($this->children[$parentKey] ?? []));
+    }
+
+    /**
+     * @param  array<int|string, array>  $items
+     * @return list<array>
+     */
+    private function sortAndTranslate(array $items): array
+    {
+        return Collection::make($items)
+            ->sortBy('order')
+            ->values()
+            ->map($this->translate(...))
+            ->all();
     }
 
     /**

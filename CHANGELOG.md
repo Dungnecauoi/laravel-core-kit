@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.5.0 — 2026-09-15
+
+- `MenuRegistry` now sorts `items()`/`childrenFor()` by an `order` key (default 100), the same convention `SettingsRegistry` already had. Without this, sidebar position depended on which package's service provider happened to boot first (composer's discovery order) — the same class of bug the `admin.auth` alias guard exists to prevent. Not a breaking change: items without an explicit `order` all default to 100 and keep their registration order relative to each other (PHP's sort has been stable since 8.0).
+- Added `AdminAuthBootOrderTest`, a regression test that actually simulates a package's provider booting *before* `CoreServiceProvider` and claiming the `admin.auth` alias first — the exact race the existing guard in `CoreServiceProvider::boot()` protects against. The previous test only proved an override made *after* core boots wins, which doesn't exercise that guard at all; this one does (verified it fails if the guard is removed).
+
 ## 0.4.0 — 2026-09-13
 
 - `starter-kit:install`: every project now gets `spatie/laravel-backup` unconditionally (no repository entry needed — it's on Packagist), installed after the chosen kit and any optional features. Unlike `auth`/`seo`/`media`, it's no longer offered in the feature multiselect since it isn't optional; it still shows up in `config/starter-kit.php`'s `features` list so downstream code can check for it the same way. Verified end-to-end in a scratch app: run backup, list it in the admin UI, download it, delete it.

@@ -36,6 +36,43 @@ class MenuRegistryTest extends TestCase
         $this->assertSame([], $registry->childrenFor('unknown'));
     }
 
+    public function test_it_sorts_items_by_order(): void
+    {
+        $registry = new MenuRegistry;
+
+        $registry->register(['key' => 'billing', 'label' => 'Billing', 'order' => 30]);
+        $registry->register(['key' => 'dashboard', 'label' => 'Dashboard', 'order' => 10]);
+        $registry->register(['key' => 'users', 'label' => 'Users', 'order' => 20]);
+
+        $this->assertSame(
+            ['dashboard', 'users', 'billing'],
+            array_column($registry->items(), 'key'),
+        );
+    }
+
+    public function test_default_order_is_100_when_not_given(): void
+    {
+        $registry = new MenuRegistry;
+
+        $registry->register(['label' => 'Media']);
+
+        $this->assertSame(100, $registry->items()[0]['order']);
+    }
+
+    public function test_children_are_also_sorted_by_order(): void
+    {
+        $registry = new MenuRegistry;
+
+        $registry->register(['key' => 'permissions', 'label' => 'Permissions', 'order' => 30], parentKey: 'management');
+        $registry->register(['key' => 'users', 'label' => 'Users', 'order' => 10], parentKey: 'management');
+        $registry->register(['key' => 'roles', 'label' => 'Roles', 'order' => 20], parentKey: 'management');
+
+        $this->assertSame(
+            ['users', 'roles', 'permissions'],
+            array_column($registry->childrenFor('management'), 'key'),
+        );
+    }
+
     public function test_re_registering_the_same_key_replaces_instead_of_duplicating(): void
     {
         $registry = new MenuRegistry;
